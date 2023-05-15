@@ -1,0 +1,48 @@
+version: "3.8"
+services: 
+  mongodb:
+    image: mongo
+    container_name: springbookexample-mongodb
+    ports:
+      - 27017:27017
+    volumes:
+      - data:/data
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=rootuser
+      - MONGO_INITDB_ROOT_PASSWORD=rootpass
+  mongo-express:
+    image: mongo-express
+    container_name: springbookexample-mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=rootuser
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=rootpass
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+  keycloak:
+      image: quay.io/keycloak/keycloak:latest
+      container_name: keycloak
+      ports:
+        - 8080:8080
+      restart: always
+      command:
+        - start-dev
+      environment:
+        KEYCLOAK_ADMIN: admin
+        KEYCLOAK_ADMIN_PASSWORD: admin
+      networks:
+        - lan-network        
+      volumes:
+        - keycloakdata:/opt/keycloak/data/h2
+
+volumes:
+  keycloakdata:
+    external: true
+    name: keycloakdata
+
+networks:
+  lan-network:
+    driver: bridge
+  default:
+    name: mongodb_network
